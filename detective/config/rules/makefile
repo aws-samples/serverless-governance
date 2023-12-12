@@ -26,3 +26,8 @@ violations.package:
 	sam package --profile ${PROFILE} -t ${VIOLATIONS_TEMPLATE} --output-template-file ${VIOLATIONS_OUTPUT} --s3-bucket ${BUCKET} --s3-prefix ${VIOLATIONS_STACK}
 violations.deploy:
 	sam deploy --profile ${PROFILE} -t ${VIOLATIONS_OUTPUT} --stack-name ${VIOLATIONS_STACK} --parameter-overrides ${VIOLATIONS_PARAMS} --capabilities CAPABILITY_NAMED_IAM
+
+cdk.synth:
+	cd iac/cdk && cdk synth
+cdk.deploy:
+	cd iac/cdk && cdk deploy --context stackName=${CDK_STACK}
