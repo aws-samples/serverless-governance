@@ -1,0 +1,11 @@
+let lambda_functions = Resources.*[
+    Type == "AWS::Serverless::Function"
+]
+
+rule lambda_in_vpc when %lambda_functions !empty {
+    %lambda_functions {
+        Properties {
+            VpcConfig exists <<Lambda function is not configured in a VPC.>>
+        }
+    }
+}

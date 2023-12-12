@@ -1,0 +1,10 @@
+# directories
+.vscode
+layer
+tmp
+
+# files
+etc/environment.sh
+etc/payload.json
+iac/*_output.yaml
+notes.md

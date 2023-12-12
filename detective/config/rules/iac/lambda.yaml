@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda functions for custom Config rules
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    MemorySize: !Ref pFnMemory
+    Runtime: python3.11
+    Timeout: !Ref pFnTimeout
+Parameters:
+  pFnMemory:
+    Type: Number
+  pFnTimeout:
+    Type: Number
+  pRequiredTags:
+    Type: String
+Resources:
+  # Lambda
+  FnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: cloudwatch-insights
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: 'arn:aws:logs:*:*:log-group:*:*'
+        - PolicyName: xray
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                  - xray:GetSamplingRules
+                  - xray:GetSamplingTargets
+                  - xray:GetSamplingStatisticSummaries
+                Resource: '*'
+        - PolicyName: config
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - config:PutEvaluations
+                Resource: '*'
+        - PolicyName: config-lambda
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:ListFunctions
+                  - lambda:ListTags
+                Resource: '*'
+        - PolicyName: resource-explorer-2
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - resource-explorer-2:Search
+                Resource: !Sub 'arn:aws:resource-explorer-2:${AWS::Region}:${AWS::AccountId}:view/*/*'
+  # Deprecated runtime
+  FnLambdaDeprecatedRuntime:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/deprecated_runtime
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Tags:
+        application:group: governance
+        application:subgroup: config
+        application:owner: aws
+  FnLambdaDeprecatedRuntimeLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaDeprecatedRuntime}'
+      RetentionInDays: 7
+  PermLambdaDeprecatedRuntime:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FnLambdaDeprecatedRuntime
+      Principal: config.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !Sub 'arn:aws:config:${AWS::Region}:${AWS::AccountId}:config-rule/*'
+  # Required tags
+  # Note that a managed rule for required tags exists but it does not support Lambda today
+  FnLambdaRequiredTags:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/required_tags
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Environment:
+        Variables:
+          REQUIRED_TAGS: !Ref pRequiredTags
+      Tags:
+        application:group: governance
+        application:subgroup: config
+        application:owner: aws
+  FnLambdaRequiredTagsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaRequiredTags}'
+      RetentionInDays: 7
+  PermFnLambdaRequiredTags:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FnLambdaRequiredTags
+      Principal: config.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !Sub 'arn:aws:config:${AWS::Region}:${AWS::AccountId}:config-rule/*'
+  # Required tags using Resource Explorer
+  FnLambdaRequiredTagsExplorer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/required_tags_explorer
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Environment:
+        Variables:
+          REQUIRED_TAGS: !Ref pRequiredTags
+      Tags:
+        application:group: governance
+        application:subgroup: config
+        application:owner: aws
+  FnLambdaResourceExplorerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaRequiredTagsExplorer}'
+      RetentionInDays: 7
+  PermFnLambdaRequiredTagsExplorer:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FnLambdaRequiredTagsExplorer
+      Principal: config.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !Sub 'arn:aws:config:${AWS::Region}:${AWS::AccountId}:config-rule/*'
+Outputs:
+  outFnLambdaDeprecatedRuntimeArn:
+    Value: !GetAtt FnLambdaDeprecatedRuntime.Arn
+  outFnLambdaRequiredTagsArn:
+    Value: !GetAtt FnLambdaRequiredTags.Arn
+  outFnLambdaRequiredTagsExplorerArn:
+    Value: !GetAtt FnLambdaRequiredTagsExplorer.Arn

@@ -1,0 +1,187 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda functions that violate custom Config rules
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    MemorySize: !Ref pFnMemory
+    Timeout: !Ref pFnTimeout
+    Runtime: python3.10
+Parameters:
+  pVpcId:
+    Type: String
+  pSubnetIds:
+    Type: List<String>
+  pFnMemory:
+    Type: Number
+  pFnTimeout:
+    Type: Number
+Resources:
+  FnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: cloudwatch-insights
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: 'arn:aws:logs:*:*:log-group:*:*'
+  FnRoleWithVpc:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: cloudwatch-insights
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: 'arn:aws:logs:*:*:log-group:*:*'
+        - PolicyName: ec2-v2n
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                Resource: '*'
+
+  # [MANAGED_RULE=lambda-public-access-prohibited]
+  FnLambdaPublicAccess:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/violations
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Runtime: python3.11
+      Tags:
+        application:group: governance
+        application:subgroup: violations
+        application:owner: aws
+  FnLambdaPublicAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaPublicAccess}'
+      RetentionInDays: 7
+  PermLambdaPublicAccess:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FnLambdaPublicAccess
+      Principal: '*'
+      Action: lambda:InvokeFunction
+  # [MANAGED_RULE=lambda-inside-vpc]
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: sg-00
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/32
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+        - CidrIp: 0.0.0.0/32
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+      VpcId: !Ref pVpcId
+  FnLambdaInsideVpc:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/violations
+      Handler: fn.handler
+      Role: !GetAtt FnRoleWithVpc.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        SubnetIds: !Ref pSubnetIds
+      Tags:
+        application:group: governance
+        application:subgroup: violations
+  FnLambdaInsideVpcLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaInsideVpc}'
+      RetentionInDays: 7
+  # [CUSTOM_RULE=lambda-deprecated-runtime]
+  #   nodejs12.x will cause a stack deployment failure because it has passed phase 2 deprecation
+  FnLambdaDeprecatedRuntime:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/violations
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Runtime: nodejs12.x
+      Tags:
+        application:group: governance
+        application:subgroup: violations
+        application:owner: aws
+  # [CUSTOM_RULE=lambda-required-tags]
+  FnLambdaRequiredTags:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/violations
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Tags:
+        application:group: governance
+        # application:subgroup: violations
+        # application:owner: aws
+  FnLambdaRequiredTagsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaRequiredTags}'
+      RetentionInDays: 7
+Outputs:
+  outFnLambdaPublicAccess:
+    Value: !Ref FnLambdaPublicAccess
+  outFnLambdaInsideVpc:
+    Value: !Ref FnLambdaInsideVpc
+  outFnLambdaDeprecatedRuntime:
+    Value: !Ref FnLambdaDeprecatedRuntime
+  outFnLambdaRequiredTags:
+    Value: !Ref FnLambdaRequiredTags

@@ -1,0 +1,31 @@
+PROFILE=your-aws-profile
+REGION=your-aws-region
+BUCKET=your-configuration-bucket
+
+P_FN_MEMORY=128
+P_FN_TIMEOUT=15
+P_REQUIRED_TAGS=application:group,application:subgroup,application:owner
+LAMBDA_STACK=governance-config-functions
+LAMBDA_TEMPLATE=iac/lambda.yaml
+LAMBDA_OUTPUT=iac/lambda_output.yaml
+LAMBDA_PARAMS="ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT} ParameterKey=pRequiredTags,ParameterValue=${P_REQUIRED_TAGS}"
+
+P_TEST_FN=FnLambdaRequiredTags
+O_FN_ARN_DEPRECATED_RUNTIME=output-fn-deprecated-runtime
+O_FN_ARN_REQUIRED_TAGS=output-fn-required-tags
+O_FN_ARN_REQUIRED_TAGS_EXPLORER=output-fn-required-tags
+O_FN=output-fn-id-for-testing
+
+P_REQUIRED_SUBNET_IDS=comma-separated-list-of-required-subnet-ids
+CONFIG_STACK=governance-config-rules
+CONFIG_TEMPLATE=iac/config.yaml
+CONFIG_OUTPUT=iac/config_output.yaml
+CONFIG_PARAMS="ParameterKey=pRequiredSubnetIds,ParameterValue=${P_REQUIRED_SUBNET_IDS} ParameterKey=pDeprecatedRuntimeArn,ParameterValue=${O_FN_ARN_DEPRECATED_RUNTIME} ParameterKey=pRequiredTagsArn,ParameterValue=${O_FN_ARN_REQUIRED_TAGS_EXPLORER}"
+
+# optional deployment stack, for testing only
+P_VPC_ID=your-vpc-id
+P_VIOLATION_SUBNET_IDS=comma-separated-list-of-public-subnet-ids
+VIOLATIONS_STACK=governance-config-violations
+VIOLATIONS_TEMPLATE=iac/violations.yaml
+VIOLATIONS_OUTPUT=iac/violations_output.yaml
+VIOLATIONS_PARAMS="ParameterKey=pVpcId,ParameterValue=${P_VPC_ID} ParameterKey=pSubnetIds,ParameterValue=${P_VIOLATION_SUBNET_IDS} ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT}"

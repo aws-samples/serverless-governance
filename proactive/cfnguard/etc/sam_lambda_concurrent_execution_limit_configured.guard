@@ -1,0 +1,11 @@
+let lambda_functions = Resources.*[
+    Type == "AWS::Serverless::Function"
+]
+
+rule lambda_concurrent_execution_limit_configured when %lambda_functions !empty {
+    %lambda_functions {
+        Properties {
+            ReservedConcurrentExecutions exists <<Lambda function concurrent execution limit is not configured.>>
+        }
+    }
+}

@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Governance for Lambda with Inspector
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Handler: fn.handler
+    MemorySize: !Ref pFnMemory
+    Runtime: python3.11
+    Timeout: !Ref pFnTimeout
+Parameters:
+  pFnMemory:
+    Type: Number
+  pFnTimeout:
+    Type: Number
+Resources:
+  # Lambda
+  FnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: cloudwatch-insights
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: 'arn:aws:logs:*:*:log-group:*:*'
+  Fn1Vulnerable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/python-1-vulnerable
+      Role: !GetAtt FnRole.Arn
+      Tags:
+        application:group: governance
+        application:subgroup: inspector
+        application:owner: aws
+  Fn1Patched:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/python-1-patched
+      Role: !GetAtt FnRole.Arn
+      Tags:
+        application:group: governance
+        application:subgroup: inspector
+        application:owner: aws
+  Layer2Vulnerable:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.9
+        - python3.10
+        - python3.11
+      ContentUri: ../src/python-2-vulnerable/tmp
+      LayerName: governance-fn2-vulnerable
+  Fn2Vulnerable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/python-2-vulnerable/fn
+      Role: !GetAtt FnRole.Arn
+      Layers:
+        - !Ref Layer2Vulnerable
+      Tags:
+        application:group: governance
+        application:subgroup: inspector
+        application:owner: aws
+  Layer2Patched:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.9
+        - python3.10
+        - python3.11
+      ContentUri: ../src/python-2-patched/tmp
+      LayerName: governance-fn2-patched
+  Fn2Patched:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/python-2-patched/fn
+      Role: !GetAtt FnRole.Arn
+      Layers:
+        - !Ref Layer2Patched
+      Tags:
+        application:group: governance
+        application:subgroup: inspector
+        application:owner: aws
+Outputs:
+  outFn1Patched:
+    Value: !Ref Fn1Patched
+  outFn1Vulnerable:
+    Value: !Ref Fn1Vulnerable
+  outFn2Patched:
+    Value: !Ref Fn2Patched
+  outFn2Vulnerable:
+    Value: !Ref Fn2Vulnerable

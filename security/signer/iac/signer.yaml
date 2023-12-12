@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Signer for Lambda controls
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  pValidDays:
+    Type: Number
+Resources:
+  Signer:
+    Type: AWS::Signer::SigningProfile
+    Properties:
+      PlatformId: AWSLambda-SHA384-ECDSA
+      SignatureValidityPeriod:
+        Type: DAYS
+        Value: !Ref pValidDays
+  SigningConfig:
+    Type: AWS::Lambda::CodeSigningConfig
+    Properties:
+      AllowedPublishers:
+        SigningProfileVersionArns:
+          - !GetAtt Signer.ProfileVersionArn
+      CodeSigningPolicies:
+        UntrustedArtifactOnDeployment: Enforce
+Outputs:
+  outSignerArn:
+    Value: !Ref Signer
+  outSignerId:
+    Value: !Select [2, !Split ['/', !Ref Signer]]
+  outSigningConfigArn:
+    Value: !GetAtt SigningConfig.CodeSigningConfigArn

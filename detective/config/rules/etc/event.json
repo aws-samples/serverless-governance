@@ -1,0 +1,12 @@
+{
+    "version": "1.0",
+    "invokingEvent": "{\"awsAccountId\":\"123456789012\",\"notificationCreationTime\":\"2023-05-11T19:14:39.678Z\",\"messageType\":\"ScheduledNotification\",\"recordVersion\":\"1.0\"}",
+    "resultToken": "example_token_eyJlbmNyeXB0ZWREYXRhIjpbLTEy",
+    "eventLeftScope": false,
+    "executionRoleArn": "arn:aws:iam::123456789012:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig",
+    "configRuleArn": "arn:aws:config:us-east-1:123456789012:config-rule/config-rule-abcdef",
+    "configRuleName": "lambda-deprecated-runtime",
+    "configRuleId": "config-rule-abcdef",
+    "accountId": "123456789012",
+    "evaluationMode": "DETECTIVE"
+}

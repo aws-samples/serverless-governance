@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Layer for Lambda controls
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  pName:
+    Type: String
+  pDescription:
+    Type: String
+Resources:
+  LayerXray:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.9
+        - python3.10
+        - python3.11
+      ContentUri: ../tmp/layer
+      LayerName: !Ref pName
+      Description: !Ref pDescription
+  LayerXrayPermission:
+    Type: AWS::Lambda::LayerVersionPermission
+    Properties:
+      Action: lambda:GetLayerVersion
+      LayerVersionArn: !Ref LayerXray
+      Principal: !Ref AWS::AccountId
+Outputs:
+  outLayerXray:
+    Value: !Ref LayerXray

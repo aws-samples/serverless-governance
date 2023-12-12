@@ -1,0 +1,193 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deployment IAM role for Lambda controls
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  pBucket:
+    Type: String
+Resources:
+  CfnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: cloudformation-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:ListChangeSets
+                  - cloudformation:ListExports
+                  - cloudformation:ListImports
+                  - cloudformation:ListStacks
+                Resource: '*'
+        - PolicyName: cloudformation-write
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStack
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DeleteStack
+                  - cloudformation:TagResource
+                  - cloudformation:UpdateStack
+                  - cloudformation:ValidateTemplate
+                Resource: '*'
+        - PolicyName: iam-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:ListRoles
+                Resource: '*'
+        - PolicyName: iam-write
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:CreateRole
+                  - iam:DeleteRole
+                  - iam:DeleteRolePolicy
+                  - iam:PassRole
+                  - iam:PutRolePolicy
+                  - iam:TagRole
+                  - iam:UntagRole
+                Resource: '*'
+        - PolicyName: s3-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource:
+                  - !Sub 'arn:aws:s3:::${pBucket}/*'
+                  - !Sub 'arn:aws:s3:::${pBucket}-versioned/*'
+        - PolicyName: cloudwatch-insights
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:PutRetentionPolicy
+                  - logs:DescribeLogStreams
+                  - logs:DeleteLogGroup
+                Resource: 'arn:aws:logs:*:*:log-group:*:*'
+        - PolicyName: signer
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - signer:GetSigningProfile
+                  - signer:PutSigningProfile
+                Resource: "*"
+        - PolicyName: lambda-read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:GetAccountSettings
+                  - lambda:GetEventSourceMapping
+                  - lambda:GetFunction
+                  - lambda:GetFunctionConfiguration
+                  - lambda:GetFunctionCodeSigningConfig
+                  - lambda:GetFunctionConcurrency
+                  - lambda:ListEventSourceMappings
+                  - lambda:ListFunctions
+                  - lambda:ListTags
+                Resource: '*'
+        - PolicyName: lambda-write
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:DeleteFunction
+                  - lambda:TagResource
+                Resource: '*'
+        - PolicyName: lambda-signing
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:CreateCodeSigningConfig
+                  - lambda:DeleteCodeSigningConfig
+                  - lambda:GetCodeSigningConfig
+                  - lambda:UpdateCodeSigningConfig
+                Resource: '*'
+        - PolicyName: lambda-develop-function
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:CreateFunction
+                  - lambda:UpdateFunctionCode
+                  - lambda:UpdateFunctionConfiguration
+                Resource: '*'
+                Condition:
+                  ForAllValues:StringLike:
+                    lambda:Layer:
+                      - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:*:*'
+                      - !Sub 'arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:*'
+                  # for layers we want to disable
+                  # ForAllValues:StringNotLike:
+                  #   lambda:Layer:
+                  #     - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:boto3:*'
+        - PolicyName: lambda-develop-layer
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:DeleteLayerVersion
+                  - lambda:GetLayerVersion
+                  - lambda:GetLayerVersionPolicy
+                  - lambda:PublishLayerVersion
+                  - lambda:AddLayerVersionPermission
+                  - lambda:RemoveLayerVersionPermission
+                Resource: '*'
+        - PolicyName: lambda-develop-mapping
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:CreateEventSourceMapping
+                  - lambda:DeleteEventSourceMapping
+                  - lambda:UpdateEventSourceMapping
+                Resource: "*"
+                Condition:
+                  StringLike:
+                    lambda:FunctionArn: 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*'
+Outputs:
+  outCfnRole:
+    Value: !GetAtt CfnRole.Arn

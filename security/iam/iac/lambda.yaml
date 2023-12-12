@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Function for Lambda governed deployment
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    MemorySize: !Ref pFnMemory
+    Runtime: python3.11
+    Timeout: !Ref pFnTimeout
+Parameters:
+  pFnMemory:
+    Type: Number
+  pFnTimeout:
+    Type: Number
+Resources:
+  # Lambda
+  FnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: cloudwatch-insights
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                Resource: '*'
+        - PolicyName: cloudwatch-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: 'arn:aws:logs:*:*:log-group:*:*'
+        - PolicyName: xray
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                  - xray:GetSamplingRules
+                  - xray:GetSamplingTargets
+                  - xray:GetSamplingStatisticSummaries
+                Resource: '*'
+  Fn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Tags:
+        application:group: governance
+        application:subgroup: iam
+        application:owner: aws
+  FnLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${Fn}'
+      RetentionInDays: 7
+Outputs:
+  outFn:
+    Value: !Ref Fn

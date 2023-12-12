@@ -1,0 +1,13 @@
+let lambda_functions = Resources.*[
+    Type == "AWS::Serverless::Function"
+]
+
+rule lambda_soon_to_be_deprecated_runtime when %lambda_functions !empty {
+    %lambda_functions {
+        Properties {
+            when Runtime exists {
+                Runtime !in ["nodejs16.x", "nodejs14.x", "python3.7", "java8", "dotnet7", "go1.x", "ruby2.7", "provided"] <<Lambda function is using a runtime that is targeted for deprecation.>>
+            }
+        }
+    }
+}

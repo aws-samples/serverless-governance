@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Governance with Config using both managed and custom rules
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  pRequiredSubnetIds:
+    Type: String
+  pDeprecatedRuntimeArn:
+    Type: String
+  pRequiredTagsArn:
+    Type: String
+Resources:
+  # Config managed rules
+  RuleLambdaPublicAccessProhibited:
+    Type: "AWS::Config::ConfigRule"
+    Properties:
+      ConfigRuleName: "lambda-public-access-prohibited"
+      Description: "A Config rule that checks whether the AWS Lambda function policy attached to the Lambda resource prohibits public access. If the function policy allows public access, it is non-compliant."
+      # NOTE: This property is not supported, as it is triggered base on a change in resource.
+      # MaximumExecutionFrequency: One_Hour
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::Lambda::Function"
+      Source:
+        Owner: "AWS"
+        SourceIdentifier: "LAMBDA_FUNCTION_PUBLIC_ACCESS_PROHIBITED"
+  RuleLambdaInsideVpc:
+    Type: "AWS::Config::ConfigRule"
+    Properties:
+      ConfigRuleName: "lambda-inside-vpc"
+      Description: "A Config rule that checks whether the AWS Lambda function is VPC-enabled and thus operates inside a VPC. If the function is not VPC-enabled, it is non-compliant."
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::Lambda::Function"
+      Source:
+        Owner: "AWS"
+        SourceIdentifier: "LAMBDA_INSIDE_VPC"
+      InputParameters:
+        subnetIds: !Ref pRequiredSubnetIds
+  # Config custom rules
+  RuleLambdaDeprecatedRuntime:
+    Type: "AWS::Config::ConfigRule"
+    Properties:
+      ConfigRuleName: "lambda-deprecated-runtime"
+      Description: "A Config rule that checks whether the AWS Lambda function is using a deprecated runtime. If the function is used a deprecated runtime, it is non-compliant."
+      MaximumExecutionFrequency: One_Hour
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::Lambda::Function"
+      Source:
+        Owner: "CUSTOM_LAMBDA"
+        SourceIdentifier: !Ref pDeprecatedRuntimeArn
+        SourceDetails:
+          - EventSource: aws.config
+            MessageType: ScheduledNotification
+            MaximumExecutionFrequency: One_Hour
+  RuleLambdaRequiredTagsScheduled:
+    Type: "AWS::Config::ConfigRule"
+    Properties:
+      ConfigRuleName: "lambda-required-tags-scheduled"
+      Description: "A Config rule that checks whether the AWS Lambda function has the required tags. If the function does not have the required tags, it is non-compliant."
+      MaximumExecutionFrequency: One_Hour
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::Lambda::Function"
+      Source:
+        Owner: "CUSTOM_LAMBDA"
+        SourceIdentifier: !Ref pRequiredTagsArn
+        SourceDetails:
+          - EventSource: aws.config
+            MessageType: ScheduledNotification
+            MaximumExecutionFrequency: One_Hour
+  RuleLambdaRequiredTagsOnChange:
+    Type: "AWS::Config::ConfigRule"
+    Properties:
+      ConfigRuleName: "lambda-required-tags-on-change"
+      Description: "A Config rule that checks whether the AWS Lambda function has the required tags. If the function does not have the required tags, it is non-compliant."
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::Lambda::Function"
+      Source:
+        Owner: "CUSTOM_LAMBDA"
+        SourceIdentifier: !Ref pRequiredTagsArn
+        SourceDetails:
+          - EventSource: aws.config
+            MessageType: ConfigurationItemChangeNotification
+          - EventSource: aws.config
+            MessageType: OversizedConfigurationItemChangeNotification
+Outputs:
+  outRuleLambdaPublicAccessProhibitedArn:
+    Value: !GetAtt RuleLambdaPublicAccessProhibited.Arn
+  outRuleLambdaDeprecatedRuntimeArn:
+    Value: !GetAtt RuleLambdaDeprecatedRuntime.Arn
+  outRuleLambdaInsideVpc:
+    Value: !GetAtt RuleLambdaInsideVpc.Arn
+  outRuleLambdaRequiredTagsScheduled:
+    Value: !GetAtt RuleLambdaRequiredTagsScheduled.Arn
+  outRuleLambdaRequiredTagsOnChange:
+    Value: !GetAtt RuleLambdaRequiredTagsOnChange.Arn

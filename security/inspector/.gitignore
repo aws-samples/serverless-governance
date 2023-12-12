@@ -1,0 +1,11 @@
+# directories
+.vscode
+__pycache__
+build
+tmp
+
+# files
+etc/*.sh
+iac/*_output.yaml
+build.toml
+notes.md
