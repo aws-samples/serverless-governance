@@ -1,7 +1,9 @@
 import boto3
+import botocore.exceptions
 import json
-from lib.lambda_describer import LambdaDescriber
+from lib.encoders import DateTimeEncoder
 from lib.enums import ComplianceStates
+from lib.lambda_describer import LambdaDescriber
 
 # initialization
 session = boto3.session.Session()
@@ -38,47 +40,58 @@ DEPRECATED_RUNTIME_IDENTIFIERS = [
 def has_deprecated_runtime():
     ld = LambdaDescriber(session)
     fns = ld.list_functions(online=True)
-    validations = []
+    output = []
     for fn in fns:
-        validation = {
+        invalid = {
             "FunctionArn": fn["FunctionArn"],
             "InvalidRuntimes": [fn["Runtime"]] if fn["Runtime"] in DEPRECATED_RUNTIME_IDENTIFIERS else []
         }
-        validations.append(validation)
+        output.append(invalid)
 
-    print(json.dumps(validations))
-    return validations
+    print(json.dumps(output))
+    return output
+
+def get_violations(invoking_event):
+    violations = []
+    message_type = invoking_event["messageType"]
+    if message_type == "ScheduledNotification":
+        violations = has_deprecated_runtime()
+    elif message_type == "ConfigurationItemChangeNotification":
+        violations = []
+    return violations
+
+def get_evaluations(violations, timestamp):
+    evaluations = []
+    for violation in violations:
+        evaluation = {
+            "OrderingTimestamp": timestamp,
+            "ComplianceResourceType": "AWS::Lambda::Function",
+            "ComplianceResourceId": violation["FunctionArn"].split(":")[-1],
+            "ComplianceType": ComplianceStates.NOT_APPLICABLE.value
+        }
+        if len(violation["InvalidRuntimes"]) > 0:
+            evaluation["ComplianceType"] = ComplianceStates.NON_COMPLIANT.value
+            evaluation["Annotation"] = violation["InvalidRuntimes"][0]
+        elif len(violation["MissingTags"]) == 0:
+            evaluation["ComplianceType"] = ComplianceStates.COMPLIANT.value
+        evaluations.append(evaluation)
+    return evaluations
 
 def handler(event, context):
     print(json.dumps(event))
     invoking_event = json.loads(event["invokingEvent"])
-    message_type = invoking_event["messageType"]
+    print(json.dumps(invoking_event, cls=DateTimeEncoder))
     timestamp = str(invoking_event["notificationCreationTime"])
     result_token = event["resultToken"]
 
-    if message_type == "ScheduledNotification":
-        validations = has_deprecated_runtime()
-    elif message_type == "ConfigurationItemChangeNotification":
-        validations = []
-    else:
-        validations = []
+    violations = get_violations(invoking_event)
+    evaluations = get_evaluations(violations, timestamp)
+    print(json.dumps(evaluations, cls=DateTimeEncoder))
 
-    evaluations = []
-    for validation in validations:
-        evaluation = {
-            "ComplianceResourceType": "AWS::Lambda::Function",
-            "ComplianceResourceId": validation["FunctionArn"].split(":")[-1],
-            "OrderingTimestamp": timestamp,
-        }
-        if len(validation["InvalidRuntimes"]) > 0:
-            evaluation["ComplianceType"] = ComplianceStates.NON_COMPLIANT.value
-            evaluation["Annotation"] = validation["InvalidRuntimes"][0]
-        elif len(validation["InvalidRuntimes"]) == 0:
-            evaluation["ComplianceType"] = ComplianceStates.COMPLIANT.value
-        else:
-            evaluation["InvalidRuntimes"] = ComplianceStates.NOT_APPLICABLE.value
-        evaluations.append(evaluation)
-
-    response = client.put_evaluations(Evaluations=evaluations, ResultToken=result_token)
+    try:
+        response = client.put_evaluations(Evaluations=evaluations, ResultToken=result_token)
+    except botocore.exceptions.ClientError as e:
+        response = e.response
     print(json.dumps(response))
-    return response
+
+    return violations

@@ -6,5 +6,5 @@ tmp
 # files
 etc/environment.sh
 etc/payload.json
-iac/*_output.yaml
+iac/sam/*_output.yaml
 notes.md

@@ -95,7 +95,7 @@ Resources:
   FnLambdaPublicAccess:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/violations
+      CodeUri: ../../src/violations
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Runtime: python3.11
@@ -132,7 +132,7 @@ Resources:
   FnLambdaInsideVpc:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/violations
+      CodeUri: ../../src/violations
       Handler: fn.handler
       Role: !GetAtt FnRoleWithVpc.Arn
       VpcConfig:
@@ -152,7 +152,7 @@ Resources:
   FnLambdaDeprecatedRuntime:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/violations
+      CodeUri: ../../src/violations
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Runtime: nodejs12.x
@@ -164,7 +164,7 @@ Resources:
   FnLambdaRequiredTags:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/violations
+      CodeUri: ../../src/violations
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Tags:

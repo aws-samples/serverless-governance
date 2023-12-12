@@ -88,7 +88,7 @@ Resources:
   FnLambdaDeprecatedRuntime:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/deprecated_runtime
+      CodeUri: ../../src/deprecated_runtime
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Tags:
@@ -112,7 +112,7 @@ Resources:
   FnLambdaRequiredTags:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/required_tags
+      CodeUri: ../../src/required_tags
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Environment:
@@ -138,7 +138,7 @@ Resources:
   FnLambdaRequiredTagsExplorer:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/required_tags_explorer
+      CodeUri: ../../src/required_tags_explorer
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Environment:
