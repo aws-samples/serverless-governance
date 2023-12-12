@@ -4,7 +4,10 @@ layer
 tmp
 
 # files
+.terraform*
 etc/environment.sh
 etc/payload.json
 iac/sam/*_output.yaml
 notes.md
+terraform.tfstate*
+variable.tfvars
