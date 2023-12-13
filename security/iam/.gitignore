@@ -4,6 +4,9 @@ layer
 tmp
 
 # files
+.terraform*
 etc/environment.sh
 *_output.yaml
 notes.md
+terraform.tfstate*
+variable.tfvars
