@@ -3,15 +3,15 @@ REGION=your-aws-region
 BUCKET=your-configuration-bucket
 
 IAM_STACK=governance-deployment-role
-IAM_TEMPLATE=iac/iam.yaml
-IAM_OUTPUT=iac/iam_output.yaml
+IAM_TEMPLATE=iac/sam/iam.yaml
+IAM_OUTPUT=iac/sam/iam_output.yaml
 IAM_PARAMS="ParameterKey=pBucket,ParameterValue=${BUCKET}"
 O_CFN_ROLE_ARN=output-iam-role-arn
 
 P_FN_MEMORY=128
 P_FN_TIMEOUT=15
 LAMBDA_STACK=governance-deployment-function
-LAMBDA_TEMPLATE=iac/lambda.yaml
-LAMBDA_OUTPUT=iac/lambda_output.yaml
+LAMBDA_TEMPLATE=iac/sam/lambda.yaml
+LAMBDA_OUTPUT=iac/sam/lambda_output.yaml
 LAMBDA_PARAMS="ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT}"
 O_FN=output-fn-id

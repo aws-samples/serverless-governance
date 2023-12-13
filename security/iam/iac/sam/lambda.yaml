@@ -60,7 +60,7 @@ Resources:
   Fn:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src
+      CodeUri: ../../src
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       Tags:

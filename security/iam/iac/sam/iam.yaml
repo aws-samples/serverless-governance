@@ -74,7 +74,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - s3:*
+                  - s3:Get*
                 Resource:
                   - !Sub 'arn:aws:s3:::${pBucket}/*'
                   - !Sub 'arn:aws:s3:::${pBucket}-versioned/*'

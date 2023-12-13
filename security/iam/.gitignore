@@ -5,5 +5,5 @@ tmp
 
 # files
 etc/environment.sh
-iac/*_output.yaml
+*_output.yaml
 notes.md
