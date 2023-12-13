@@ -15,8 +15,6 @@ Resources:
     Properties:
       ConfigRuleName: "lambda-public-access-prohibited"
       Description: "A Config rule that checks whether the AWS Lambda function policy attached to the Lambda resource prohibits public access. If the function policy allows public access, it is non-compliant."
-      # NOTE: This property is not supported, as it is triggered base on a change in resource.
-      # MaximumExecutionFrequency: One_Hour
       Scope:
         ComplianceResourceTypes:
           - "AWS::Lambda::Function"

@@ -90,32 +90,28 @@ Resources:
                   - ec2:DescribeNetworkInterfaces
                   - ec2:DeleteNetworkInterface
                 Resource: '*'
-
-  #########################################################
-  #  Note that this will internally cause a SEV-2 at AWS  #
-  #########################################################
   # [MANAGED_RULE=lambda-public-access-prohibited]
-  # FnLambdaPublicAccess:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     CodeUri: ../src/violations
-  #     Handler: fn.handler
-  #     Role: !GetAtt FnRole.Arn
-  #     Runtime: python3.11
-  #     Tags:
-  #       application:group: governance
-  #       application:subgroup: violations
-  # FnLambdaPublicAccessLogGroup:
-  #   Type: AWS::Logs::LogGroup
-  #   Properties:
-  #     LogGroupName: !Sub '/aws/lambda/${FnLambdaPublicAccess}'
-  #     RetentionInDays: 7
-  # PermLambdaPublicAccess:
-  #   Type: AWS::Lambda::Permission
-  #   Properties:
-  #     FunctionName: !Ref FnLambdaPublicAccess
-  #     Principal: '*'
-  #     Action: lambda:InvokeFunction
+  FnLambdaPublicAccess:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/violations
+      Handler: fn.handler
+      Role: !GetAtt FnRole.Arn
+      Runtime: python3.11
+      Tags:
+        application:group: governance
+        application:subgroup: violations
+  FnLambdaPublicAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaPublicAccess}'
+      RetentionInDays: 7
+  PermLambdaPublicAccess:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FnLambdaPublicAccess
+      Principal: '*'
+      Action: lambda:InvokeFunction
   # [MANAGED_RULE=lambda-inside-vpc]
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -176,6 +172,7 @@ Resources:
       Tags:
         application:group: governance
         application:subgroup: violations
+        # application:owner: missing
   FnLambdaDeprecatedRuntimeLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -191,15 +188,15 @@ Resources:
       Tags:
         application:group: governance
         application:subgroup: violations
-        # application:owner: aws
+        # application:owner: missing
   FnLambdaRequiredTagsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/lambda/${FnLambdaRequiredTags}'
       RetentionInDays: 7
 Outputs:
-  # outFnLambdaPublicAccess:
-  #   Value: !Ref FnLambdaPublicAccess
+  outFnLambdaPublicAccess:
+    Value: !Ref FnLambdaPublicAccess
   outFnLambdaInsideVpc:
     Value: !Ref FnLambdaInsideVpc
   outFnLambdaDeprecatedRuntime:
