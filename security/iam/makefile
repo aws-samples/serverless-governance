@@ -20,3 +20,10 @@ lambda.invoke.sync:
 	cat tmp/fn.json | jq
 lambda.invoke.async:
 	aws lambda invoke --profile ${PROFILE} --function-name ${O_FN} --invocation-type Event --payload file://etc/event.json --cli-binary-format raw-in-base64-out --log-type Tail tmp/fn.json | jq "."
+
+cdk.synth:
+	cd iac/cdk && cdk synth --parameters ${CDK_PARAMS}
+cdk.deploy:
+	cd iac/cdk && cdk deploy --context stackName=${CDK_STACK} --parameters ${CDK_PARAMS}
+cdk.destroy:
+	cd iac/cdk && cdk destroy --context stackName=${CDK_STACK} --parameters ${CDK_PARAMS}

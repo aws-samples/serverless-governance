@@ -15,3 +15,6 @@ LAMBDA_TEMPLATE=iac/sam/lambda.yaml
 LAMBDA_OUTPUT=iac/sam/lambda_output.yaml
 LAMBDA_PARAMS="ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT}"
 O_FN=output-fn-id
+
+CDK_STACK=governance-deployment-cdk
+CDK_PARAMS="pBucket=${BUCKET}"
