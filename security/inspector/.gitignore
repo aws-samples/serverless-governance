@@ -6,6 +6,6 @@ tmp
 
 # files
 etc/*.sh
-iac/*_output.yaml
+*_output.yaml
 build.toml
 notes.md
