@@ -33,6 +33,10 @@ Perform a signed deployment: `make layer.signed`
 * This should be the same layer ARN but an incremented layer version.
 * You will likely see version 1 with `xray-2.12.1-unsigned` and version 2 with `xray-2.12.1-signed`.
 
+After completing the deployment, update the following outputs:
+* `O_LAYER_ARN`: output ARN for the layer version
+* `O_LAYER_VERSION_NUMBER` output layer version number
+
 Deploy a function with the signed layer and a signed zip deployment: `make lambda.signed`
 
 After completing the deployment, update the following outputs:

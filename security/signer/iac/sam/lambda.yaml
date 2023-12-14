@@ -6,7 +6,7 @@ Globals:
     Layers:
       - !Ref pLayerArn
     MemorySize: !Ref pFnMemory
-    Runtime: python3.9
+    Runtime: python3.11
     Timeout: !Ref pFnTimeout
     Tracing: Active
 Parameters:
@@ -67,7 +67,7 @@ Resources:
   Fn:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/fn
+      CodeUri: ../../src/fn
       Handler: fn.handler
       Role: !GetAtt FnRole.Arn
       CodeSigningConfigArn: !Ref pSigningConfigArn

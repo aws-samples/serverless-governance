@@ -14,7 +14,7 @@ Resources:
         - python3.9
         - python3.10
         - python3.11
-      ContentUri: ../tmp/layer
+      ContentUri: ../../tmp/layer
       LayerName: !Ref pName
       Description: !Ref pDescription
   LayerXrayPermission:

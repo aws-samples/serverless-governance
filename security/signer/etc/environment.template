@@ -5,8 +5,8 @@ BUCKET_VERSIONED=your-versioned-configuration-bucket
 
 P_VALID_DAYS=365
 SIGNER_STACK=governance-signing-signer
-SIGNER_TEMPLATE=iac/signer.yaml
-SIGNER_OUTPUT=iac/signer_output.yaml
+SIGNER_TEMPLATE=iac/sam/signer.yaml
+SIGNER_OUTPUT=iac/sam/signer_output.yaml
 SIGNER_PARAMS="ParameterKey=pValidDays,ParameterValue=${P_VALID_DAYS}"
 O_SIGNER_ID=output-signing-profile-id
 O_SIGNER_ARN=output-signing-profile-arn
@@ -17,8 +17,8 @@ P_NAME=governance-xray-python3
 P_DESCRIPTION=xray-2.12.1-unsigned
 P_SIGNING_PROFILES_LAYER="LayerXray=${O_SIGNER_ID}"
 LAYER_STACK=governance-signing-layer
-LAYER_TEMPLATE=iac/layer.yaml
-LAYER_OUTPUT=iac/layer_output.yaml
+LAYER_TEMPLATE=iac/sam/layer.yaml
+LAYER_OUTPUT=iac/sam/layer_output.yaml
 LAYER_PARAMS="ParameterKey=pName,ParameterValue=${P_NAME} ParameterKey=pDescription,ParameterValue=${P_DESCRIPTION}"
 O_LAYER_VERSION_NUMBER=1
 O_LAYER_ARN=output-layer-version-arn
@@ -27,7 +27,7 @@ P_FN_MEMORY=128
 P_FN_TIMEOUT=15
 P_SIGNING_PROFILES_FN="Fn=${O_SIGNER_ID}"
 LAMBDA_STACK=governance-signing-function
-LAMBDA_TEMPLATE=iac/lambda.yaml
-LAMBDA_OUTPUT=iac/lambda_output.yaml
+LAMBDA_TEMPLATE=iac/sam/lambda.yaml
+LAMBDA_OUTPUT=iac/sam/lambda_output.yaml
 LAMBDA_PARAMS="ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT} ParameterKey=pLayerArn,ParameterValue=${O_LAYER_ARN} ParameterKey=pSigningConfigArn,ParameterValue=${O_SIGNING_CONFIG_ARN}"
 O_FN=output-fn-id
