@@ -28,6 +28,8 @@ P_VIOLATION_SUBNET_IDS=comma-separated-list-of-public-subnet-ids
 VIOLATIONS_STACK=governance-config-violations
 VIOLATIONS_TEMPLATE=iac/sam/violations.yaml
 VIOLATIONS_OUTPUT=iac/sam/violations_output.yaml
-VIOLATIONS_PARAMS="ParameterKey=pVpcId,ParameterValue=${P_VPC_ID} ParameterKey=pSubnetIds,ParameterValue=${P_VIOLATION_SUBNET_IDS} ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT}"
+VIOLATIONS_PARAMS="ParameterKey=pVpcId,ParameterValue=${P_VPC_ID} ParameterKey=yamlpSubnetIds,ParameterValue=${P_VIOLATION_SUBNET_IDS} ParameterKey=pFnMemory,ParameterValue=${P_FN_MEMORY} ParameterKey=pFnTimeout,ParameterValue=${P_FN_TIMEOUT}"
 
 CDK_STACK=governance-config-cdk
+CDK_PARAMS=--parameters pFnMemory=${P_FN_MEMORY}
+CDK_PARAMS+=--parameters pFnTimeout=${P_FN_TIMEOUT}

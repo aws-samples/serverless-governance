@@ -9,6 +9,13 @@ export class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const pFnMemory = new cdk.CfnParameter(this, "pFnMemory", {
+      type: "Number"
+    });
+    const pFnTimeout = new cdk.CfnParameter(this, "pFnTimeout", {
+      type: "Number"
+    });
+
     const role = new iam.Role(this, "fnRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com")
     });
@@ -97,7 +104,8 @@ export class CdkStack extends cdk.Stack {
     );
     const fnDeprecatedRuntime = new lambda.Function(this, "fnDeprecatedRuntime", {
       runtime: lambda.Runtime.PYTHON_3_11,
-      timeout: cdk.Duration.seconds(30),
+      memorySize: pFnMemory.valueAsNumber,
+      timeout: cdk.Duration.seconds(pFnTimeout.valueAsNumber),
       code: lambda.Code.fromAsset("../../src/deprecated_runtime"),
       handler: "fn.handler",
       role: role,
@@ -117,7 +125,8 @@ export class CdkStack extends cdk.Stack {
 
     const fnRequiredTags = new lambda.Function(this, "fnRequiredTags", {
       runtime: lambda.Runtime.PYTHON_3_11,
-      timeout: cdk.Duration.seconds(30),
+      memorySize: pFnMemory.valueAsNumber,
+      timeout: cdk.Duration.seconds(pFnTimeout.valueAsNumber),
       code: lambda.Code.fromAsset("../../src/required_tags"),
       handler: "fn.handler",
       role: role,
@@ -137,7 +146,8 @@ export class CdkStack extends cdk.Stack {
 
     const fnRequiredTagsExplorer = new lambda.Function(this, "fnRequiredTagsExplorer", {
       runtime: lambda.Runtime.PYTHON_3_11,
-      timeout: cdk.Duration.seconds(30),
+      memorySize: pFnMemory.valueAsNumber,
+      timeout: cdk.Duration.seconds(pFnTimeout.valueAsNumber),
       code: lambda.Code.fromAsset("../../src/required_tags_explorer"),
       handler: "fn.handler",
       role: role,

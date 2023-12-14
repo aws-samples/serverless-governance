@@ -28,11 +28,11 @@ violations.deploy:
 	sam deploy --profile ${PROFILE} -t ${VIOLATIONS_OUTPUT} --stack-name ${VIOLATIONS_STACK} --parameter-overrides ${VIOLATIONS_PARAMS} --capabilities CAPABILITY_NAMED_IAM
 
 cdk.synth:
-	cd iac/cdk && cdk synth
+	cd iac/cdk && cdk synth ${CDK_PARAMS}
 cdk.deploy:
-	cd iac/cdk && cdk deploy --context stackName=${CDK_STACK}
+	cd iac/cdk && cdk deploy --context stackName=${CDK_STACK} ${CDK_PARAMS}
 cdk.destroy:
-	cd iac/cdk && cdk destroy --context stackName=${CDK_STACK}
+	cd iac/cdk && cdk destroy --context stackName=${CDK_STACK} ${CDK_PARAMS}
 
 terraform.init:
 	cd iac/terraform && terraform init
