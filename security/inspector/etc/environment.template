@@ -12,4 +12,5 @@ TEST_FN=Fn1Patched
 O_FN=output-fn-id
 
 CDK_STACK=governance-inspector-cdk
-CDK_PARAMS="pFnMemory=${P_FN_MEMORY} --parameters pFnTimeout=${P_FN_TIMEOUT}"
+CDK_PARAMS=--parameters pFnMemory=${P_FN_MEMORY}
+CDK_PARAMS+=--parameters pFnTimeout=${P_FN_TIMEOUT}
