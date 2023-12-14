@@ -5,7 +5,10 @@ build
 tmp
 
 # files
-etc/*.sh
+.terraform*
+etc/environment.sh
 *_output.yaml
 build.toml
 notes.md
+terraform.tfstate*
+variable.tfvars

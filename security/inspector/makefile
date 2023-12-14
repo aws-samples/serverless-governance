@@ -26,3 +26,12 @@ cdk.deploy:
 	cd iac/cdk && cdk deploy --context stackName=${CDK_STACK} ${CDK_PARAMS}
 cdk.destroy:
 	cd iac/cdk && cdk destroy --context stackName=${CDK_STACK} ${CDK_PARAMS}
+
+terraform.init:
+	cd iac/terraform && terraform init
+terraform.plan:
+	cd iac/terraform && terraform plan -var-file=variable.tfvars
+terraform.apply:
+	cd iac/terraform && terraform apply -var-file=variable.tfvars
+terraform.destroy:
+	cd iac/terraform && terraform destroy -var-file=variable.tfvars
