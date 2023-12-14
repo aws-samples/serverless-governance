@@ -106,7 +106,7 @@ resource "aws_iam_role_policy_attachment" "lambda_attach_config" {
 data "archive_file" "zip_deprecated_runtime" {
     type = "zip"
     source_dir = "../../src/deprecated_runtime"
-    output_path = "../tmp/deprecated_runtime.zip"
+    output_path = "../../tmp/deprecated_runtime.zip"
 }
 resource "aws_s3_object" "s3_deprecated_runtime" {
     bucket = var.bucket
@@ -147,7 +147,7 @@ resource "aws_cloudwatch_log_group" "fn_deprecated_runtime_log_group" {
 data "archive_file" "zip_required_tags" {
     type = "zip"
     source_dir = "../../src/required_tags"
-    output_path = "../tmp/required_tags.zip"
+    output_path = "../../tmp/required_tags.zip"
 }
 resource "aws_s3_object" "s3_required_tags" {
     bucket = var.bucket
@@ -188,7 +188,7 @@ resource "aws_cloudwatch_log_group" "fn_required_tags_log_group" {
 data "archive_file" "zip_required_tags_explorer" {
     type = "zip"
     source_dir = "../../src/required_tags_explorer"
-    output_path = "../tmp/required_tags_explorer.zip"
+    output_path = "../../tmp/required_tags_explorer.zip"
 }
 resource "aws_s3_object" "s3_required_tags_explorer" {
     bucket = var.bucket

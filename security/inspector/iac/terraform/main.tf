@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "lambda_attach_xray" {
 data "archive_file" "zip_fn1_vulnerable" {
     type = "zip"
     source_dir = "../../src/python-1-vulnerable"
-    output_path = "../tmp/fn1_vulnerable.zip"
+    output_path = "../../tmp/fn1_vulnerable.zip"
 }
 resource "aws_s3_object" "s3_fn1_vulnerable" {
     bucket = var.bucket
@@ -108,7 +108,7 @@ resource "aws_cloudwatch_log_group" "fn1_vulnerable_log_group" {
 data "archive_file" "zip_fn1_patched" {
     type = "zip"
     source_dir = "../../src/python-1-patched"
-    output_path = "../tmp/fn1_patched.zip"
+    output_path = "../../tmp/fn1_patched.zip"
 }
 resource "aws_s3_object" "s3_fn1_patched" {
     bucket = var.bucket
@@ -143,7 +143,7 @@ resource "aws_cloudwatch_log_group" "fn1_patched_log_group" {
 data "archive_file" "zip_fn2_vulnerable" {
     type = "zip"
     source_dir = "../../src/python-2-vulnerable"
-    output_path = "../tmp/fn2_vulnerable.zip"
+    output_path = "../../tmp/fn2_vulnerable.zip"
 }
 resource "aws_s3_object" "s3_fn2_vulnerable" {
     bucket = var.bucket
@@ -178,7 +178,7 @@ resource "aws_cloudwatch_log_group" "fn2_vulnerable_log_group" {
 data "archive_file" "zip_fn2_patched" {
     type = "zip"
     source_dir = "../../src/python-2-patched"
-    output_path = "../tmp/fn2_patched.zip"
+    output_path = "../../tmp/fn2_patched.zip"
 }
 resource "aws_s3_object" "s3_fn2_patched" {
     bucket = var.bucket
