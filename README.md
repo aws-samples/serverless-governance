@@ -15,7 +15,7 @@ This repository is organized in modules by the control type and the AWS service 
 * Proactive: CloudFormation Guard
 * Security: IAM, Inspector, Signer
 
-Each module is currently implemented using [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html). The intention of this repository is to eventually implement each module using AWS SAM, [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html), and [Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs).
+Each module is implemented using [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html), [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html), and [Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs).
 
 ## Security
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
