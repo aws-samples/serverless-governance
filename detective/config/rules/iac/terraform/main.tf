@@ -120,6 +120,8 @@ resource "aws_lambda_function" "fn_deprecated_runtime" {
     s3_key = aws_s3_object.s3_deprecated_runtime.key
     runtime = "python3.11"
     handler = "fn.handler"
+    memory_size = var.fn_memory
+    timeout = var.fn_timeout
     source_code_hash = data.archive_file.zip_deprecated_runtime.output_base64sha256
     role = aws_iam_role.lambda_role.arn
     layers = [
@@ -159,6 +161,8 @@ resource "aws_lambda_function" "fn_required_tags" {
     s3_key = aws_s3_object.s3_required_tags.key
     runtime = "python3.11"
     handler = "fn.handler"
+    memory_size = var.fn_memory
+    timeout = var.fn_timeout
     source_code_hash = data.archive_file.zip_required_tags.output_base64sha256
     role = aws_iam_role.lambda_role.arn
     layers = [
@@ -198,6 +202,8 @@ resource "aws_lambda_function" "fn_required_tags_explorer" {
     s3_key = aws_s3_object.s3_required_tags_explorer.key
     runtime = "python3.11"
     handler = "fn.handler"
+    memory_size = var.fn_memory
+    timeout = var.fn_timeout
     source_code_hash = data.archive_file.zip_required_tags_explorer.output_base64sha256
     role = aws_iam_role.lambda_role.arn
     layers = [

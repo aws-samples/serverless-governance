@@ -10,3 +10,11 @@ variable "region" {
 variable "bucket" {
     type = string
 }
+
+variable "fn_memory" {
+    type = number
+}
+
+variable "fn_timeout" {
+    type = number
+}
