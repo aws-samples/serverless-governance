@@ -96,7 +96,7 @@ resource "aws_iam_role_policy_attachment" "lambda_attach_cloudwatch" {
 }
 resource "aws_iam_role_policy_attachment" "lambda_attach_xray" {
     role = aws_iam_role.lambda_role.name
-    policy_arn = aws_iam_policy.lambda_policy_cloudwatch.arn
+    policy_arn = aws_iam_policy.lambda_policy_xray.arn
 }
 resource "aws_iam_role_policy_attachment" "lambda_attach_config" {
     role = aws_iam_role.lambda_role.name
