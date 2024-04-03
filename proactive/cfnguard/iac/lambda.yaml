@@ -156,10 +156,10 @@ Resources:
       Tags:
         application:group: governance
         application:subgroup: violations
-  FnLambdaDeprecatedRuntimeLogGroup:
+  FnLambdaSoonToBeDeprecatedRuntimeLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${FnLambdaDeprecatedRuntime}'
+      LogGroupName: !Sub '/aws/lambda/${FnLambdaSoonToBeDeprecatedRuntime}'
       RetentionInDays: 7
   # [CUSTOM_RULE=lambda-already-deprecated-runtime]
   FnLambdaDeprecatedRuntime:
